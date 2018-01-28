@@ -1,18 +1,16 @@
 package models;
 
-import java.util.ArrayList;
-
 public abstract class Menu {
-	private final long id;
-	private final long restaurant_id;
+	private long id;
+	private long restaurant_id;
 	private String menu_type;
-	private ArrayList<Category> categories;
 	
-	Menu(long id, long restaurant_id, ArrayList<Category> categories) {
+	public Menu(long id, long restaurant_id) {
 		this.id = id;
 		this.restaurant_id= restaurant_id;
-		this.categories = categories;
 	}
+	
+	public Menu() {}
 	
 	public long getId() {
 		return id;
@@ -20,10 +18,6 @@ public abstract class Menu {
 	
 	public long getRestaurantId() {
 		return restaurant_id;
-	}
-	
-	public ArrayList<Category> getCategories() {
-		return categories;
 	}
 	
 	public String getMenuType() {

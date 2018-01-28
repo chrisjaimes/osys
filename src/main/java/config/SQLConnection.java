@@ -10,7 +10,7 @@ public class SQLConnection {
 
 	public static Connection connection;
 	
-	public static int connect(AbstractMap.SimpleEntry<String, String> credentials, String host) {
+	public static int connect(AbstractMap.SimpleEntry<String, String> credentials, String host, String port) {
 		if(credentials == null || credentials.getKey() == null || credentials.getValue() == null) {
 			try {
 				connection.close(); 
@@ -23,7 +23,7 @@ public class SQLConnection {
 		}
 		
 		String url = "jdbc:postgresql://" + host +
-				":" + Constants.PORT + "/" +
+				":" + port + "/" +
 				Constants.DATABASE + "?user=" + credentials.getKey() +
 				"&password=" + credentials.getValue();
 		
@@ -34,6 +34,21 @@ public class SQLConnection {
 		} catch(Exception e) {
 			connection = null;
 			return Constants.CONNECTION_TO_DB_FAILED;
+		}
+	}
+	
+	public static boolean closeConnection() {
+		try {
+			if(connection == null)
+				return true;
+			
+			if(!connection.isClosed())
+				connection.close();
+			
+			connection = null;
+			return true;
+		} catch(Exception e) {
+			return false;
 		}
 	}
 	

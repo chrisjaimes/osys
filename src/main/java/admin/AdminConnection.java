@@ -1,8 +1,8 @@
 package admin;
 
-public class Admin {
+public class AdminConnection {
 
-	private String username, password, host;
+	private String username, password, host, port;
 	
 	public String getUsername() {
 		return username;
@@ -14,5 +14,9 @@ public class Admin {
 
 	public String getHost() {
 		return host;
+	}
+	
+	public String getPort() {
+		return port;
 	}
 }

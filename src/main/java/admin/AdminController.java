@@ -1,6 +1,7 @@
 package admin;
 
 import java.util.AbstractMap;
+import javafx.collections.ObservableList;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import IO.Response;
+import IO.SQLConsultant;
 import config.Constants;
 import config.SQLConnection;
 import error.AppErrorHandler;
-import hello.Greeting;
 import models.Restaurant;
 
 @RestController
@@ -21,18 +22,18 @@ public class AdminController {
 //    private final AtomicLong counter = new AtomicLong();
 
 	@RequestMapping(value="/db", method=RequestMethod.POST)
-	public Response connectToDB(@RequestBody(required=true) Admin request) {
+	public Response connectToDB(@RequestBody(required=true) AdminConnection request) {
 		
 		AbstractMap.SimpleEntry<String, String> credentials;
 		credentials = new AbstractMap.SimpleEntry<>(request.getUsername(), request.getPassword());
 	
-		int connection = SQLConnection.connect(credentials, request.getHost());
+		int connection = SQLConnection.connect(credentials, request.getHost(), request.getPort());
 		
 		switch(connection) {
 			case 1:
 				return new Response("error", "401", Constants.INVALID_CREDENTIALS_MSG);
 			case 2:
-				return new Response("error", "200", Constants.ADMIN_CONNECTED_TO_DB_MSG);
+				return new Response("success", "200", Constants.ADMIN_CONNECTED_TO_DB_MSG);
 			case 3:
 				return new Response("error", "400", Constants.CONNECTION_TO_DB_FAILED_MSG);
 		}
@@ -40,43 +41,48 @@ public class AdminController {
 		return new Response("succes", "200", request.getUsername() + ":admin connected");
 	}
 	
-	public void closeConnectionToDB() {
-		
+	@RequestMapping(value="/disconnect", method=RequestMethod.GET)
+	public Response closeConnectionToDB() {
+		if(SQLConnection.closeConnection()) {
+			return new Response("success", "200", "Connection to " + Constants.DATABASE + " was closed");
+		} else {
+			return new Response("error", "200", "Error trying to disconnect from " + Constants.DATABASE);
+		}
 	}
-	
-	@RequestMapping(value="/greeting", method=RequestMethod.POST)
-    public Response greeting(@RequestBody(required=true) Greeting request) {
-		if(request.equals(null)) System.out.println("nullito");
-		System.out.println("aja " + request.toString());
-    	return new Response("succces", "200", "request: " + request.getContent());
-    }
 	
     @RequestMapping(value = "/addRestaurant", method = RequestMethod.POST)
     public Response addRestaurant(@RequestBody(required=true) Restaurant request) {
     	if(SQLConnection.connection != null) {
-    		new AppErrorHandler().unauthorized();
+    		
+    		int op = SQLConsultant.addRestaurant(request);
+    		
+    		if(op != Constants.SUCCESSFUL_DB_OPERATION)
+    			return new AppErrorHandler().operationError(op);
+    		
+    		return new Response("success", "200", "restaurant " + request + " added");
     	}
-    	
-    	return new Response("success", "200", "restaurant " + request + " added");
+    	  	
+    	return new AppErrorHandler().unauthorized();
     }
     
     @RequestMapping(value="/getRestaurants", method = RequestMethod.GET)
     public Response getRestaurants() {
     	if(SQLConnection.connection != null) {
-    		new AppErrorHandler().unauthorized();
-    	}
+    		
+    		ObservableList<Restaurant> restaurants = SQLConsultant.getRestaurants();
 
-    	
-    	
-    	return new Response("success", "200", "restaurants");
+    		return new Response("succes", "200", restaurants+"");
+    	}
+    	  	
+    	return new AppErrorHandler().unauthorized();
     }
     
     @RequestMapping(value="/deleteRestaurant", method = RequestMethod.DELETE)
     public Response deleteRestaurant(@RequestBody(required=true) Restaurant request) {
     	if(SQLConnection.connection != null) {
-    		new AppErrorHandler().unauthorized();
+    		return new Response("success", "200", "deleted");
     	}
     	
-    	return new Response("success", "200", "deleted");
+    	return new AppErrorHandler().unauthorized();
     }
 }
