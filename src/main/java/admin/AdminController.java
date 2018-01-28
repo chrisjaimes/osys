@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import IO.Response;
+import config.Constants;
 import config.SQLConnection;
 import error.AppErrorHandler;
 import hello.Greeting;
@@ -19,8 +20,24 @@ public class AdminController {
 
 //    private final AtomicLong counter = new AtomicLong();
 
-	public void connectToDB(String username, String password, String host) {
-		SQLConnection.connect(new AbstractMap.SimpleEntry<String, String>(username, password), host);
+	@RequestMapping(value="/db", method=RequestMethod.POST)
+	public Response connectToDB(@RequestBody(required=true) Admin request) {
+		
+		AbstractMap.SimpleEntry<String, String> credentials;
+		credentials = new AbstractMap.SimpleEntry<>(request.getUsername(), request.getPassword());
+	
+		int connection = SQLConnection.connect(credentials, request.getHost());
+		
+		switch(connection) {
+			case 1:
+				return new Response("error", "401", Constants.INVALID_CREDENTIALS_MSG);
+			case 2:
+				return new Response("error", "200", Constants.ADMIN_CONNECTED_TO_DB_MSG);
+			case 3:
+				return new Response("error", "400", Constants.CONNECTION_TO_DB_FAILED_MSG);
+		}
+		
+		return new Response("succes", "200", request.getUsername() + ":admin connected");
 	}
 	
 	public void closeConnectionToDB() {

@@ -10,7 +10,7 @@ public class SQLConnection {
 
 	public static Connection connection;
 	
-	public static String connect(AbstractMap.SimpleEntry<String, String> credentials, String host) {
+	public static int connect(AbstractMap.SimpleEntry<String, String> credentials, String host) {
 		if(credentials == null || credentials.getKey() == null || credentials.getValue() == null) {
 			try {
 				connection.close(); 
@@ -19,7 +19,7 @@ public class SQLConnection {
 				;
 			}
 			
-			return "Invalid credentials";
+			return Constants.INVALID_CREDENTIALS;
 		}
 		
 		String url = "jdbc:postgresql://" + host +
@@ -29,14 +29,11 @@ public class SQLConnection {
 		
 		try {
 			connection = DriverManager.getConnection(url);
-			return 
-					"Connected to " + host + ":" + 
-					Constants.PORT + "/" + 
-					Constants.DATABASE;
+			return Constants.ADMIN_CONNECTED_TO_DB;
 			
 		} catch(Exception e) {
 			connection = null;
-			return "Connection to database failed";
+			return Constants.CONNECTION_TO_DB_FAILED;
 		}
 	}
 	
