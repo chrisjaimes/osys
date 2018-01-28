@@ -14,8 +14,8 @@ public abstract class Constants {
 		
 		public static final int SUCCESSFUL_DB_OPERATION = 100;
 		public static final int DB_ERROR = -100;
-		public static final int DB_COUNT_ERROR = -101;
 		public static final int DB_INSERT_OPERATION_INTERRUPTED = -102;
+		public static final int DB_DELETE_OPERATION_INTERRUPTED = -103;
 	
 	//internal codes
 	

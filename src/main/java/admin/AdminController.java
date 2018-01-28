@@ -59,7 +59,7 @@ public class AdminController {
     		if(op != Constants.SUCCESSFUL_DB_OPERATION)
     			return new AppErrorHandler().operationError(op);
     		
-    		return new Response("success", "200", "restaurant " + request + " added");
+    		return new Response("success", "200", "restaurant " + request.getId() + " added");
     	}
     	  	
     	return new AppErrorHandler().unauthorized();
@@ -71,6 +71,8 @@ public class AdminController {
     		
     		ObservableList<Restaurant> restaurants = SQLConsultant.getRestaurants();
 
+    		for(int i = 0; i < restaurants.size(); i++)
+    			System.out.println(restaurants.get(i).getId());
     		return new Response("succes", "200", restaurants+"");
     	}
     	  	
@@ -80,6 +82,13 @@ public class AdminController {
     @RequestMapping(value="/deleteRestaurant", method = RequestMethod.DELETE)
     public Response deleteRestaurant(@RequestBody(required=true) Restaurant request) {
     	if(SQLConnection.connection != null) {
+    		
+    		int op = SQLConsultant.deleteRestaurant(request.getId());
+    		
+    		if(op != Constants.SUCCESSFUL_DB_OPERATION) {
+    			return new AppErrorHandler().operationError(op);
+    		}
+    		
     		return new Response("success", "200", "deleted");
     	}
     	

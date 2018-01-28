@@ -13,39 +13,6 @@ import models.Restaurant;
 
 public class SQLConsultant {
 
-	private static int getCount(String table) {
-		
-		int count = -1;
-		
-		PreparedStatement statement = null;
-		ResultSet result = null;
-		
-		String sql = "SELECT COUNT(*) FROM " + table + ";";
-		
-		try {
-			statement = SQLConnection.connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-		}
-		catch(Exception e) {
-			return Constants.INTERNAL_ERROR;
-		}
-		
-		try  {
-			result = statement.executeQuery();
-		}
-		catch(Exception e) {
-			return Constants.DB_COUNT_ERROR;
-		}
-		
-		try {
-			result.next();
-			count = result.getInt("count");
-			return count;
-		}
-		catch(Exception e) {
-			return Constants.DB_COUNT_ERROR;
-		}
-	}
-	
 	public static ObservableList<Restaurant> getRestaurants() {
 
 		ObservableList<Restaurant> restaurant_list = FXCollections.observableArrayList();
@@ -63,9 +30,6 @@ public class SQLConsultant {
 				restaurant_list = FXCollections.observableArrayList();
 				
 				while(result.next()) {
-					System.out.println("keyworkds " + result.getArray("keywords"));
-					System.out.println(result.getArray("keywords").getArray());
-					System.out.println("ahora\n\n\n\naja");
 					
 					Array array = result.getArray("keywords");
 					String[] keywords = (String[])array.getArray();
@@ -74,15 +38,11 @@ public class SQLConsultant {
 							result.getString("description"), keywords, result.getLong("bmenu_id"), 
 							result.getLong("lmenu_id"), result.getLong("dmenu_id"));
 					
-					System.out.println("adding");
-					System.out.println("adding " + restaurant);
 					restaurant_list.add(restaurant);
 				}
 			
-				System.out.println("list: " + restaurant_list);
 				FXCollections.sort(restaurant_list);
 			
-				System.out.println("bye " + restaurant_list );
 				return restaurant_list;
 			
 		} catch (SQLException e) {
@@ -121,6 +81,25 @@ public class SQLConsultant {
 			
 		} catch (SQLException e) {
 			return Constants.DB_ERROR;
+		}
+	}
+	
+	public static int deleteRestaurant(long id) {
+		
+		String sql = "DELETE FROM restaurant WHERE id = ? ";
+		try {
+			
+			PreparedStatement statement = SQLConnection.connection.prepareStatement
+			(sql,  ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			
+			statement.setLong(1, id);
+
+			statement.execute();
+			return Constants.SUCCESSFUL_DB_OPERATION;
+			
+		} catch (SQLException e) {
+			System.out.println(e);
+			return Constants.DB_DELETE_OPERATION_INTERRUPTED;
 		}
 	}
 }

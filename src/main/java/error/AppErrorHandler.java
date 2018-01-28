@@ -31,10 +31,10 @@ public class AppErrorHandler {
     		return new Response("ERROR", "500", "Error related to DB. Resource could be a duplicate in the database.");
     	else if(code == Constants.INTERNAL_ERROR)
     		return new Response("ERROR", "500", "Internal error. Error during operation");
-    	else if(code == Constants.DB_COUNT_ERROR)
-    		return new Response("ERROR", "500", "Internal error. Error before adding resource to DB.");
     	else if(code == Constants.DB_INSERT_OPERATION_INTERRUPTED)
     		return new Response("ERROR", "500", "Operation cannot be completed. Make sure you provide all parameters");
+    	else if(code == Constants.DB_DELETE_OPERATION_INTERRUPTED)
+    		return new Response("ERROR", "500", "Operation interrupted. DELETE could not be perfomed");
     	
     	return new Response("ERROR", "500", "Internal error. Error during operation");
     }
