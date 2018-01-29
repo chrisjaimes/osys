@@ -4,15 +4,22 @@ import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+
 import config.Constants;
 import config.SQLConnection;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import models.BreakfastMenu;
+import models.DinnerMenu;
+import models.LunchMenu;
+import models.Menu;
+import models.MenuItem;
 import models.Restaurant;
 
 public class SQLConsultant {
 
+	//SQL Queries for Restaurants
+	
 	public static ObservableList<Restaurant> getRestaurants() {
 
 		ObservableList<Restaurant> restaurant_list = FXCollections.observableArrayList();
@@ -26,8 +33,6 @@ public class SQLConsultant {
 				
 	
 				ResultSet result = statement.executeQuery();
-				
-				restaurant_list = FXCollections.observableArrayList();
 				
 				while(result.next()) {
 					
@@ -100,6 +105,87 @@ public class SQLConsultant {
 		} catch (SQLException e) {
 			System.out.println(e);
 			return Constants.DB_DELETE_OPERATION_INTERRUPTED;
+		}
+	}
+	
+	//SQL Queries for Menus
+	
+	public static ObservableList<Menu> getMenusByRestaurant(long restaurant_id) {
+
+		ObservableList<Menu> menu_list = FXCollections.observableArrayList();
+		BreakfastMenu bmenu;
+		LunchMenu lmenu;
+		DinnerMenu dmenu;
+		
+		String query = "SELECT * FROM menu WHERE restaurant_id = ?;";
+
+		try {
+				PreparedStatement statement = SQLConnection.connection.prepareStatement
+				(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				
+				statement.setLong(1, restaurant_id);
+				
+				ResultSet result = statement.executeQuery();
+				
+				while(result.next()) {
+					
+					if(result.getString("type").trim().equals("breakfast")) {
+						bmenu = new BreakfastMenu(result.getLong("id"), result.getLong("restaurant_id"), result.getString("type"));
+						menu_list.add(bmenu);
+						bmenu.setMenuItems(getItemsByMenu(bmenu.getId()));
+					} else if(result.getString("type").trim().equals("lunch")) {
+						lmenu = new LunchMenu(result.getLong("id"), result.getLong("restaurant_id"), result.getString("type"));
+						menu_list.add(lmenu);
+						lmenu.setMenuItems(getItemsByMenu(lmenu.getId()));
+					} else {
+						dmenu = new DinnerMenu(result.getLong("id"), result.getLong("restaurant_id"), result.getString("type"));
+						menu_list.add(dmenu);
+						dmenu.setMenuItems(getItemsByMenu(dmenu.getId()));
+					}
+				}
+			
+				return menu_list;
+			
+		} catch (SQLException e) {
+			System.out.println(e);
+			return null;
+		}
+	}
+	
+	public static MenuItem[] getItemsByMenu(long menu_id) {
+
+		MenuItem[] item_list;
+		MenuItem item;
+		int total_items = 0, index = 0;
+		
+		String query = "SELECT * FROM menu_item WHERE menu_id = ?;";
+
+		try {
+				PreparedStatement statement = SQLConnection.connection.prepareStatement
+				(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				
+				statement.setLong(1, menu_id);
+				
+				ResultSet result = statement.executeQuery();
+				
+				result.last();
+				total_items = result.getRow();
+				
+				item_list = new MenuItem[total_items];
+				
+				while(result.next()) {
+					
+					item = new MenuItem(result.getLong("id"), result.getLong("menu_id"), result.getString("name"), 
+							result.getString("description"), result.getString("category"));
+					
+					item_list[index++] = item;
+				}
+			
+				return item_list;
+			
+		} catch (SQLException e) {
+			System.out.println(e);
+			return null;
 		}
 	}
 }

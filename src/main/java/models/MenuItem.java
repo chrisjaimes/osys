@@ -1,6 +1,6 @@
 package models;
 
-public class MenuItem {
+public class MenuItem implements Comparable<MenuItem> {
 	
 	private long id;
 	private long menu_id;
@@ -15,5 +15,9 @@ public class MenuItem {
 	}
 	
 	public MenuItem() {}
+
+	public int compareTo(MenuItem item) {
+		return this.name.compareTo(item.name);
+	}
 }
 
