@@ -35,6 +35,8 @@ public class AppErrorHandler {
     		return new Response("ERROR", "500", "Operation cannot be completed. Make sure you provide all parameters");
     	else if(code == Constants.DB_DELETE_OPERATION_INTERRUPTED)
     		return new Response("ERROR", "500", "Operation interrupted. DELETE could not be perfomed");
+    	else if(code == Constants.BAD_REQUEST)
+    		return new Response("ERROR", "400", "Sorry. Bad Request");
     	
     	return new Response("ERROR", "500", "Internal error. Error during operation");
     }

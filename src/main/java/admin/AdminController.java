@@ -15,6 +15,7 @@ import config.SQLConnection;
 import error.AppErrorHandler;
 import javafx.collections.ObservableList;
 import models.Menu;
+import models.MenuItem;
 import models.Restaurant;
 
 @RestController
@@ -101,13 +102,73 @@ public class AdminController {
     public Response getMenu(@PathVariable("restId") long id) {
     	if(SQLConnection.connection != null) {
     		
-    		System.out.println("get menu of " + id);
-    		
     		ObservableList<Menu> menus = SQLConsultant.getMenusByRestaurant(id);
 
     		for(int i = 0; i < menus.size(); i++)
     			System.out.println(menus.get(i).getId());
     		return new Response("succes", "200", menus+"");
+    	}
+    	
+    	return new AppErrorHandler().unauthorized();
+    }
+    
+    @RequestMapping(value="/{restId}/addMenu", method=RequestMethod.POST)
+    public Response addMenu(@PathVariable("restId") long rest_id, @RequestBody(required=true) Menu request) {
+    	if(SQLConnection.connection != null) {
+    		
+    		int op = SQLConsultant.addMenu(rest_id, request);
+    		
+    		if(op != Constants.SUCCESSFUL_DB_OPERATION)
+    			return new AppErrorHandler().operationError(op);
+    		
+    		return new Response("success", "200", "menu " + request.getType() + " added");
+    	}
+    	
+    	return new AppErrorHandler().unauthorized();
+    }
+    
+    @RequestMapping(value="/{restId}/deleteMenu", method = RequestMethod.DELETE)
+    public Response deleteMenu(@PathVariable("restId") long rest_id, @RequestBody(required=true) Menu request) {
+    	if(SQLConnection.connection != null) {
+    		
+    		int op = SQLConsultant.deleteMenu(rest_id, request.getId());
+    		
+    		if(op != Constants.SUCCESSFUL_DB_OPERATION) {
+    			return new AppErrorHandler().operationError(op);
+    		}
+    		
+    		return new Response("success", "200", "deleted menu");
+    	}
+    	
+    	return new AppErrorHandler().unauthorized();
+    }
+    
+    @RequestMapping(value="/{restId}/{menuId}/addItem", method=RequestMethod.POST)
+    public Response addMenuItem(@PathVariable("restId") long rest_id, @PathVariable("menuId") long menu_id, @RequestBody(required=true) MenuItem request) {
+    	if(SQLConnection.connection != null) {
+    		
+    		int op = SQLConsultant.addMenuItem(menu_id, request);
+    		
+    		if(op != Constants.SUCCESSFUL_DB_OPERATION)
+    			return new AppErrorHandler().operationError(op);
+    		
+    		return new Response("success", "200", "item " + request.getName() + " added");
+    	}
+    	
+    	return new AppErrorHandler().unauthorized();
+    }
+    
+    @RequestMapping(value="/{restId}/{menuId}/deleteItem", method = RequestMethod.DELETE)
+    public Response deleteMenuItem(@PathVariable("restId") long rest_id, @PathVariable("menuId") long menu_id, @RequestBody(required=true) MenuItem request) {
+    	if(SQLConnection.connection != null) {
+    		
+    		int op = SQLConsultant.deleteMenuItem(menu_id, request.getId());
+    		
+    		if(op != Constants.SUCCESSFUL_DB_OPERATION) {
+    			return new AppErrorHandler().operationError(op);
+    		}
+    		
+    		return new Response("success", "200", "deleted menu");
     	}
     	
     	return new AppErrorHandler().unauthorized();

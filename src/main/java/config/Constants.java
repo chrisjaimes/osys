@@ -22,6 +22,7 @@ public abstract class Constants {
 		public static final String INVALID_CREDENTIALS_MSG = "Invalid credentials";
 		public static final String ADMIN_CONNECTED_TO_DB_MSG = "Connected to " + Constants.DATABASE;
 		public static final String CONNECTION_TO_DB_FAILED_MSG = "Connection to dabase failed";
+		public static final int BAD_REQUEST = -400;
 		
 		public static final int INTERNAL_ERROR = 0;
 

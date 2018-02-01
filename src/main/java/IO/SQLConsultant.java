@@ -152,6 +152,7 @@ public class SQLConsultant {
 		}
 	}
 	
+	//this function is called from SQLConsultant.getMenusByRestaurant to retrieve all items in certain menu.
 	public static MenuItem[] getItemsByMenu(long menu_id) {
 
 		MenuItem[] item_list;
@@ -176,7 +177,7 @@ public class SQLConsultant {
 				while(result.next()) {
 					
 					item = new MenuItem(result.getLong("id"), result.getLong("menu_id"), result.getString("name"), 
-							result.getString("description"), result.getString("category"));
+							result.getString("description"), result.getString("category"), result.getDouble("price"));
 					
 					item_list[index++] = item;
 				}
@@ -188,4 +189,104 @@ public class SQLConsultant {
 			return null;
 		}
 	}
+	
+	public static int addMenu(long restaurant_id, Menu menu) {
+
+		String sql = "";
+	
+		sql = "INSERT INTO menu (type, restaurant_id) "
+				+ "VALUES (?, ?); ";
+		
+		try {
+			
+			PreparedStatement statement = SQLConnection.connection.prepareStatement
+			(sql,  ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			
+			if(menu.getType() == null || menu.getType().isEmpty())
+				return Constants.DB_INSERT_OPERATION_INTERRUPTED;
+			
+			statement.setString(1,  menu.getType().trim());
+			statement.setLong(2, restaurant_id);
+
+			statement.execute();
+			return Constants.SUCCESSFUL_DB_OPERATION;
+			
+		} catch (SQLException e) {
+			return Constants.DB_ERROR;
+		}
+	}
+	
+	public static int deleteMenu(long restaurant_id, long id) {
+		
+		String sql = "DELETE FROM menu WHERE id = ? AND restaurant_id = ?";
+		try {
+			
+			PreparedStatement statement = SQLConnection.connection.prepareStatement
+			(sql,  ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			
+			statement.setLong(1, id);
+			statement.setLong(2,  restaurant_id);
+			
+			statement.execute();
+			return Constants.SUCCESSFUL_DB_OPERATION;
+			
+		} catch (SQLException e) {
+			System.out.println(e);
+			return Constants.DB_DELETE_OPERATION_INTERRUPTED;
+		}
+	}
+	
+	public static int addMenuItem(long menu_id, MenuItem item) {
+
+		String sql = "";
+		
+		sql = "INSERT INTO menu_item (menu_id, category, name, description, price) "
+				+ "VALUES (?, ?, ?, ?, ?); ";
+		
+		try {
+			
+			PreparedStatement statement = SQLConnection.connection.prepareStatement
+			(sql,  ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			
+			if(item.getName() == null        || item.getName().isEmpty() ||
+			   item.getDescription() == null || item.getDescription().isEmpty() ||
+			   item.getCategory() == null    || item.getCategory().isEmpty())
+				return Constants.DB_INSERT_OPERATION_INTERRUPTED;
+			
+			statement.setLong(1, menu_id);
+			statement.setString(2, item.getCategory().trim());
+			statement.setString(3, item.getName().trim());
+			statement.setString(4, item.getDescription().trim());
+			statement.setDouble(5, item.getPrice());
+
+			statement.execute();
+			return Constants.SUCCESSFUL_DB_OPERATION;
+			
+		} catch (SQLException e) {
+			System.out.println(e);
+			return Constants.DB_ERROR;
+		}
+
+	}
+	
+	public static int deleteMenuItem(long menu_id, long id) {
+		
+		String sql = "DELETE FROM menu_item WHERE id = ? AND menu_id = ?";
+		try {
+			
+			PreparedStatement statement = SQLConnection.connection.prepareStatement
+			(sql,  ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			
+			statement.setLong(1, id);
+			statement.setLong(2,  menu_id);
+			
+			statement.execute();
+			return Constants.SUCCESSFUL_DB_OPERATION;
+			
+		} catch (SQLException e) {
+			System.out.println(e);
+			return Constants.DB_DELETE_OPERATION_INTERRUPTED;
+		}
+	}
+ 
 }
