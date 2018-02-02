@@ -2,7 +2,7 @@ package models;
 
 public class Order {
 
-	private long id;
+	private long id, customer_id;
 	private MenuItem item;
 	private int quantity;
 	
@@ -10,6 +10,10 @@ public class Order {
 		this.id = id;
 		this.item = item;
 		this.quantity = quantity;
+	}
+	
+	public long getCustomerId() {
+		return customer_id;
 	}
 	
 	public long getId() {
@@ -34,5 +38,9 @@ public class Order {
 	
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
+	}
+	
+	public void setCustomerId(long customer_id) {
+		this.customer_id = customer_id;
 	}
 }
