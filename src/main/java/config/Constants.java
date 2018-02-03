@@ -1,7 +1,5 @@
 package config;
 
-import javafx.util.Pair;
-
 public abstract class Constants {
 	
 	//db codes

@@ -1,8 +1,13 @@
-package customer;
+package models;
 
-public class CustomerConnection {
+public class Customer{
 
+	private Cart cart;
 	private String username, password, email, address;
+	
+	public Cart getCart() {
+		return cart;
+	}
 	
 	public String getUsername() {
 		return username;

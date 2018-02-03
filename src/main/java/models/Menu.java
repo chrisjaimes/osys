@@ -1,10 +1,12 @@
 package models;
 
+import java.util.List;
+
 public class Menu {
 	private long id;
 	private long restaurant_id;
 	private String type;
-	private MenuItem[] menu_items;
+	private List<MenuItem> menu_items;
 	
 	public Menu() {}
 	
@@ -26,7 +28,7 @@ public class Menu {
 		return type.toLowerCase();
 	}
 	
-	public MenuItem[] getItems() {
+	public List<MenuItem> getItems() {
 		return this.menu_items;
 	}
 	
@@ -34,7 +36,7 @@ public class Menu {
 		this.type = menu_type;
 	}
 	
-	public void setMenuItems(MenuItem[] items) {
+	public void setMenuItems(List<MenuItem> items) {
 		this.menu_items = items;
 	}
 }

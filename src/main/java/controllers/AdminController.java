@@ -1,7 +1,9 @@
-package admin;
+package controllers;
 
 import java.util.AbstractMap;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,19 +11,28 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import IO.Response;
-import IO.SQLConsultant;
 import config.Constants;
 import config.SQLConnection;
+import connections.AdminConnection;
 import error.AppErrorHandler;
-import javafx.collections.ObservableList;
 import models.Menu;
 import models.MenuItem;
 import models.Restaurant;
+import services.MenuItemService;
+import services.MenuService;
+import services.RestaurantService;
 
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
 
+	@Autowired
+	RestaurantService restaurant_service;
+	@Autowired
+	MenuService menu_service;
+	@Autowired
+	MenuItemService menu_item_service;
+	
 //    private final AtomicLong counter = new AtomicLong();
 
 	@RequestMapping(value="/db", method=RequestMethod.POST)
@@ -57,7 +68,7 @@ public class AdminController {
     public Response addRestaurant(@RequestBody(required=true) Restaurant request) {
     	if(SQLConnection.connection != null) {
     		
-    		int op = SQLConsultant.addRestaurant(request);
+    		int op = restaurant_service.insertRestaurant(request);
     		
     		if(op != Constants.SUCCESSFUL_DB_OPERATION)
     			return new AppErrorHandler().operationError(op);
@@ -72,7 +83,7 @@ public class AdminController {
     public Response getRestaurants() {
     	if(SQLConnection.connection != null) {
     		
-    		ObservableList<Restaurant> restaurants = SQLConsultant.getRestaurants();
+    		List<Restaurant> restaurants = restaurant_service.findRestaurants();
 
     		for(int i = 0; i < restaurants.size(); i++)
     			System.out.println(restaurants.get(i).getId());
@@ -86,7 +97,7 @@ public class AdminController {
     public Response deleteRestaurant(@RequestBody(required=true) Restaurant request) {
     	if(SQLConnection.connection != null) {
     		
-    		int op = SQLConsultant.deleteRestaurant(request.getId());
+    		int op = restaurant_service.deleteRestaurant(request.getId());
     		
     		if(op != Constants.SUCCESSFUL_DB_OPERATION) {
     			return new AppErrorHandler().operationError(op);
@@ -102,7 +113,7 @@ public class AdminController {
     public Response getMenu(@PathVariable("restId") long id) {
     	if(SQLConnection.connection != null) {
     		
-    		ObservableList<Menu> menus = SQLConsultant.getMenusByRestaurant(id);
+    		List<Menu> menus = menu_service.findMenusByRestaurantId(id);
 
     		for(int i = 0; i < menus.size(); i++)
     			System.out.println(menus.get(i).getId());
@@ -116,7 +127,7 @@ public class AdminController {
     public Response addMenu(@PathVariable("restId") long rest_id, @RequestBody(required=true) Menu request) {
     	if(SQLConnection.connection != null) {
     		
-    		int op = SQLConsultant.addMenu(rest_id, request);
+    		int op = menu_service.insertMenu(rest_id, request);
     		
     		if(op != Constants.SUCCESSFUL_DB_OPERATION)
     			return new AppErrorHandler().operationError(op);
@@ -131,7 +142,7 @@ public class AdminController {
     public Response deleteMenu(@PathVariable("restId") long rest_id, @RequestBody(required=true) Menu request) {
     	if(SQLConnection.connection != null) {
     		
-    		int op = SQLConsultant.deleteMenu(rest_id, request.getId());
+    		int op = menu_service.deleteMenu(rest_id, request.getId());
     		
     		if(op != Constants.SUCCESSFUL_DB_OPERATION) {
     			return new AppErrorHandler().operationError(op);
@@ -147,7 +158,7 @@ public class AdminController {
     public Response addMenuItem(@PathVariable("restId") long rest_id, @PathVariable("menuId") long menu_id, @RequestBody(required=true) MenuItem request) {
     	if(SQLConnection.connection != null) {
     		
-    		int op = SQLConsultant.addMenuItem(menu_id, request);
+    		int op = menu_item_service.insertMenuItem(menu_id, request);
     		
     		if(op != Constants.SUCCESSFUL_DB_OPERATION)
     			return new AppErrorHandler().operationError(op);
@@ -162,7 +173,7 @@ public class AdminController {
     public Response deleteMenuItem(@PathVariable("restId") long rest_id, @PathVariable("menuId") long menu_id, @RequestBody(required=true) MenuItem request) {
     	if(SQLConnection.connection != null) {
     		
-    		int op = SQLConsultant.deleteMenuItem(menu_id, request.getId());
+    		int op = menu_item_service.deleteMenuItem(menu_id, request.getId());
     		
     		if(op != Constants.SUCCESSFUL_DB_OPERATION) {
     			return new AppErrorHandler().operationError(op);
